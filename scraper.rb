@@ -46,7 +46,7 @@ def scrape_person(url)
     party: party.to_s,
     party_ru: party_ru.to_s.sub('депутатская группа','').sub('Фракция', '').tidy,
     image: noko.css('div.MiddlePanel img[@align="left"]/@src').text,
-    term: '5',
+    term: '6',
     source: url.to_s,
   }
   data[:image] = URI.join(url, data[:image]).to_s unless data[:image].to_s.empty?
@@ -54,4 +54,4 @@ def scrape_person(url)
   ScraperWiki.save_sqlite([:id, :term], data)
 end
 
-scrape_list('http://www.kenesh.kg/RU/Folders/235-Deputaty.aspx')
+scrape_list('http://www.kenesh.kg/RU/Folders/31642-Deputaty_ZHogorku_Kenesha_VI_sozyva.aspx')
