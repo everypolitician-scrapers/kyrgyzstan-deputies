@@ -46,20 +46,12 @@ def scrape_person(url)
     party: party.to_s,
     party_ru: party_ru.to_s.sub('депутатская группа','').sub('Фракция', '').tidy,
     image: noko.css('div.MiddlePanel img[@align="left"]/@src').text,
-    term: '6',
+    term: '5',
     source: url.to_s,
   }
   data[:image] = URI.join(url, data[:image]).to_s unless data[:image].to_s.empty?
   puts data[:name]
   ScraperWiki.save_sqlite([:id, :term], data)
 end
-
-term = { 
-  id: '6',
-  name: '6th Supreme Council',
-  start_date: '2010',
-  source: 'https://en.wikipedia.org/wiki/Supreme_Council_(Kyrgyzstan)'
-}
-ScraperWiki.save_sqlite([:id], term, 'terms')
 
 scrape_list('http://www.kenesh.kg/RU/Folders/235-Deputaty.aspx')
