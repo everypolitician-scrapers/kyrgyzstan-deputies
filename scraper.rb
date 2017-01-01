@@ -11,46 +11,42 @@ OpenURI::Cache.cache_path = '.cache'
 
 class String
   def tidy
-    self.gsub(/[[:space:]]+/, ' ').strip
+    gsub(/[[:space:]]+/, ' ').strip
   end
 end
 
 def noko_for(url)
   Nokogiri::HTML(open(url).read)
-  # Nokogiri::HTML(open(url).read, nil, 'utf-8')
 end
 
 def scrape_list(url)
   noko = noko_for(url)
-  noko.css('td#ContentCell ul li a/@href').each do |link|
-    mp_url = URI.join(url, link)
-    scrape_person(mp_url)
+  noko.xpath('//table[@class="table"]//tr[td]//td[2]//a/@href').each do |href|
+    scrape_person URI.join(url, href.text)
   end
 end
 
 def scrape_person(url)
+  warn url
   noko = noko_for(url)
 
-  id, details = File.basename(url.path, '.aspx').split('-', 2)
-  name, party = details.split(/deputatskaya_gruppa|Frakciya/, 2).map { |str| str.tr('_', ' ').tidy } 
+  data = {
+    id: url.to_s.split('/')[-2],
+    name: noko.css('p.person-name').text.tidy,
+    # name_ru: name_ru.tidy,
 
-  details_ru = noko.css('div.HeaderCaption').text
-  # name_ru, party_ru = details_ru.split(/депутатская группа |Фракция/, 2).map { |str| str.tr('_', ' ').tidy } 
-  name_ru, party_ru = details_ru.split(/\s*-\s*/, 2)
+    party: noko.css('p.person-support').text.tidy,
+    # party_ru: party_ru.to_s.sub('депутатская группа','').sub('Фракция', '').tidy,
 
-  data = { 
-    id: id,
-    name: name,
-    name_ru: name_ru.tidy,
-    party: party.to_s,
-    party_ru: party_ru.to_s.sub('депутатская группа','').sub('Фракция', '').tidy,
-    image: noko.css('div.MiddlePanel img[@align="left"]/@src').text,
+    image: noko.css('.person-img img/@src').text,
     term: '6',
+
+    phone: noko.css('table.person-inform-table').xpath('.//th[.="Телефон:"]//following-sibling::td').text,
     source: url.to_s,
   }
   data[:image] = URI.join(url, data[:image]).to_s unless data[:image].to_s.empty?
-  puts data[:name]
+  puts data
   ScraperWiki.save_sqlite([:id, :term], data)
 end
 
-scrape_list('http://www.kenesh.kg/RU/Folders/31642-Deputaty_ZHogorku_Kenesha_VI_sozyva.aspx')
+scrape_list('http://www.kenesh.kg/ky/deputy/list/35')
