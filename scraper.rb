@@ -98,11 +98,9 @@ def scrape_list(url)
   MembersPage.new(response: Scraped::Request.new(url: url).response)
 end
 
-def scrape_person(url)
-  data = MemberPage.new(response: Scraped::Request.new(url: url).response).to_h
+kg = scrape_list('http://www.kenesh.kg/ky/deputy/list/35')
+kg.members.each do |mem|
+  data = MemberPage.new(response: Scraped::Request.new(url: mem.url).response).to_h
   puts data
   ScraperWiki.save_sqlite([:id, :term], data)
 end
-
-kg = scrape_list('http://www.kenesh.kg/ky/deputy/list/35')
-kg.members.each { |mem| scrape_person mem.url }
