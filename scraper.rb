@@ -60,39 +60,49 @@ class MembersPage < Scraped::HTML
       noko.css('td')
     end
   end
-
 end
 
-def noko_for(url)
-  Nokogiri::HTML(open(url).read)
+class MemberPage < Scraped::HTML
+  decorator Scraped::Response::Decorator::AbsoluteUrls
+
+  field :id do
+    url.to_s.split('/')[-2]
+  end
+
+  field :name do
+    noko.css('p.person-name').text.tidy
+  end
+
+  field :party do
+    noko.css('p.person-support').text.tidy
+  end
+
+  field :image do
+    noko.css('.person-img img/@src').text
+  end
+
+  field :term do
+    '6'
+  end
+
+  field :phone do
+    noko.css('table.person-inform-table').xpath('.//th[.="Телефон:"]//following-sibling::td').text
+  end
+
+  field :source do
+    url.to_s
+  end
 end
 
 def scrape_list(url)
-  kg = MembersPage.new(response: Scraped::Request.new(url: url).response)
-  kg.members.each { |mem| scrape_person mem.url }
+  MembersPage.new(response: Scraped::Request.new(url: url).response)
 end
 
 def scrape_person(url)
-  warn url
-  noko = noko_for(url)
-
-  data = {
-    id: url.to_s.split('/')[-2],
-    name: noko.css('p.person-name').text.tidy,
-    # name_ru: name_ru.tidy,
-
-    party: noko.css('p.person-support').text.tidy,
-    # party_ru: party_ru.to_s.sub('депутатская группа','').sub('Фракция', '').tidy,
-
-    image: noko.css('.person-img img/@src').text,
-    term: '6',
-
-    phone: noko.css('table.person-inform-table').xpath('.//th[.="Телефон:"]//following-sibling::td').text,
-    source: url.to_s,
-  }
-  data[:image] = URI.join(url, data[:image]).to_s unless data[:image].to_s.empty?
+  data = MemberPage.new(response: Scraped::Request.new(url: url).response).to_h
   puts data
   ScraperWiki.save_sqlite([:id, :term], data)
 end
 
-scrape_list('http://www.kenesh.kg/ky/deputy/list/35')
+kg = scrape_list('http://www.kenesh.kg/ky/deputy/list/35')
+kg.members.each { |mem| scrape_person mem.url }
