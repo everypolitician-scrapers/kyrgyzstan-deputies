@@ -1,5 +1,6 @@
 #!/bin/env ruby
 # encoding: utf-8
+# frozen_string_literal: true
 
 require 'scraped'
 require 'scraperwiki'
@@ -86,11 +87,17 @@ class MemberPage < Scraped::HTML
   end
 
   field :phone do
-    noko.css('table.person-inform-table').xpath('.//th[.="Телефон:"]//following-sibling::td').text
+    infotable.xpath('.//th[.="Телефон:"]//following-sibling::td').text
   end
 
   field :source do
     url.to_s
+  end
+
+  private
+
+  def infotable
+    noko.css('table.person-inform-table')
   end
 end
 
@@ -113,4 +120,4 @@ data.each do |m|
 end
 
 # puts data
-ScraperWiki.save_sqlite([:id, :term], data)
+ScraperWiki.save_sqlite(%i(id term), data)
