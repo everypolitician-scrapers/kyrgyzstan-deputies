@@ -73,7 +73,7 @@ class MemberPage < Scraped::HTML
     noko.css('p.person-name').text.tidy
   end
 
-  field :party do
+  field :faction do
     noko.css('p.person-support').text.tidy
   end
 
@@ -100,6 +100,11 @@ def scrape(h)
 end
 
 kg = scrape 'http://www.kenesh.kg/ky/deputy/list/35' => MembersPage
-data = kg.members.map { |mem| scrape mem.url => MemberPage }.map(&:to_h)
+mems = kg.members
+data = mems.map { |mem| scrape mem.url => MemberPage }.map(&:to_h)
+
+factions = mems.map(&:to_h).map { |m| [m[:faction], m[:faction_id]] }.to_h
+data.each { |m| m[:faction_id] = factions[m[:faction]] }
+
 puts data
 ScraperWiki.save_sqlite([:id, :term], data)
