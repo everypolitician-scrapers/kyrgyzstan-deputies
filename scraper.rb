@@ -100,8 +100,6 @@ def scrape(h)
 end
 
 kg = scrape 'http://www.kenesh.kg/ky/deputy/list/35' => MembersPage
-kg.members.each do |mem|
-  data = (scrape mem.url => MemberPage).to_h
-  puts data
-  ScraperWiki.save_sqlite([:id, :term], data)
-end
+data = kg.members.map { |mem| scrape mem.url => MemberPage }.map(&:to_h)
+puts data
+ScraperWiki.save_sqlite([:id, :term], data)
