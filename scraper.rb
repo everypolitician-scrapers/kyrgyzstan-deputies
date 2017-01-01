@@ -94,13 +94,14 @@ class MemberPage < Scraped::HTML
   end
 end
 
-def scrape_list(url)
-  MembersPage.new(response: Scraped::Request.new(url: url).response)
+def scrape(h)
+  url, klass = h.to_a.first
+  klass.new(response: Scraped::Request.new(url: url).response)
 end
 
-kg = scrape_list('http://www.kenesh.kg/ky/deputy/list/35')
+kg = scrape 'http://www.kenesh.kg/ky/deputy/list/35' => MembersPage
 kg.members.each do |mem|
-  data = MemberPage.new(response: Scraped::Request.new(url: mem.url).response).to_h
+  data = (scrape mem.url => MemberPage).to_h
   puts data
   ScraperWiki.save_sqlite([:id, :term], data)
 end
