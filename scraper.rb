@@ -99,12 +99,18 @@ def scrape(h)
   klass.new(response: Scraped::Request.new(url: url).response)
 end
 
-kg = scrape 'http://www.kenesh.kg/ky/deputy/list/35' => MembersPage
-mems = kg.members
-data = mems.map { |mem| scrape mem.url => MemberPage }.map(&:to_h)
+kg = (scrape 'http://www.kenesh.kg/ky/deputy/list/35' => MembersPage).members
+ru = (scrape 'http://www.kenesh.kg/ru/deputy/list/35' => MembersPage).members
 
-factions = mems.map(&:to_h).map { |m| [m[:faction], m[:faction_id]] }.to_h
-data.each { |m| m[:faction_id] = factions[m[:faction]] }
+factions = kg.map(&:to_h).map { |m| [m[:faction], m[:faction_id]] }.to_h
+ru_names = ru.map { |m| [m.id, m.name] }.to_h
+
+data = kg.map { |mem| scrape mem.url => MemberPage }.map(&:to_h)
+data.each do |m|
+  m[:name__kg]   = m[:name]
+  m[:name__ru]   = ru_names[m[:id]]
+  m[:faction_id] = factions[m[:faction]]
+end
 
 puts data
 ScraperWiki.save_sqlite([:id, :term], data)
