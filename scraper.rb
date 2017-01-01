@@ -112,5 +112,5 @@ data.each do |m|
   m[:faction_id] = factions[m[:faction]]
 end
 
-puts data
+# puts data
 ScraperWiki.save_sqlite([:id, :term], data)
