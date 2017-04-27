@@ -16,6 +16,16 @@ GIT
       vcr-archive (~> 0.3.0)
 
 GIT
+  remote: https://github.com/everypolitician/scraper_test.git
+  revision: a8a6c795ea1544bc95e2f7a1dbb132ba8c80ed98
+  specs:
+    scraper_test (0.1.0)
+      minitest (~> 5.0)
+      pry
+      vcr (>= 3.0.3)
+      webmock (>= 2.0)
+
+GIT
   remote: https://github.com/openaustralia/scraperwiki-ruby.git
   revision: fc50176812505e463077d5c673d504a6a234aa78
   branch: morph_defaults
@@ -98,6 +108,7 @@ DEPENDENCIES
   rubocop
   scraped!
   scraped_page_archive!
+  scraper_test!
   scraperwiki!
   vcr
   webmock
@@ -106,4 +117,4 @@ RUBY VERSION
    ruby 2.3.3p222
 
 BUNDLED WITH
-   1.13.6
+   1.14.6
