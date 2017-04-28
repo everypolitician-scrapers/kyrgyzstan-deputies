@@ -18,7 +18,7 @@ class String
 end
 
 class MembersPage < Scraped::HTML
-  decorator Scraped::Response::Decorator::AbsoluteUrls
+  decorator Scraped::Response::Decorator::CleanUrls
 
   field :members do
     noko.xpath('//table[@class="table"]//tr[td]').map do |tr|
@@ -64,7 +64,7 @@ class MembersPage < Scraped::HTML
 end
 
 class MemberPage < Scraped::HTML
-  decorator Scraped::Response::Decorator::AbsoluteUrls
+  decorator Scraped::Response::Decorator::CleanUrls
 
   field :id do
     url.to_s.split('/')[-2]
