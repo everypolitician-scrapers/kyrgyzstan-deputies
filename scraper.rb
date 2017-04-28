@@ -120,4 +120,4 @@ data.each do |m|
 end
 
 # puts data
-ScraperWiki.save_sqlite(%i(id term), data)
+ScraperWiki.save_sqlite(%i[id term], data)
